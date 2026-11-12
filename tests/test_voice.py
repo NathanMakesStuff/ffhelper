@@ -65,6 +65,20 @@ def test_pending_tip_plays_when_speaker_frees_up():
     voice.close()
 
 
+def test_only_the_newest_waiting_tip_is_kept():
+    speaker = FakeSpeaker()
+    voice = Voice(speaker_factory=lambda rate: speaker)
+    voice.say("tip one")
+    assert wait_for(lambda: ("start", "tip one") in speaker.log)
+    voice.say("stale tip")
+    voice.say("fresh tip")
+    time.sleep(0.15)
+    speaker.speaking = False
+    assert wait_for(lambda: ("start", "fresh tip") in speaker.log)
+    voice.close()
+    assert ("start", "stale tip") not in speaker.log
+
+
 def test_shouted_tips_reach_the_speaker_as_shouts():
     speaker = FakeSpeaker()
     voice = Voice(speaker_factory=lambda rate: speaker)

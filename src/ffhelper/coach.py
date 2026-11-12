@@ -4,9 +4,15 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import shutil
+import subprocess
+import sys
 import threading
 import time
 from collections.abc import Sequence
+from pathlib import Path
+from urllib.parse import urlsplit
 
 import cv2
 import numpy as np
@@ -25,20 +31,23 @@ CALLOUT_SCHEMA = {
 }
 SYSTEM_PROMPT = """\
 You are a furious, foul-mouthed drill sergeant coaching a Final Fantasy XIV player, watching their UI live.
-The player asked for this as a comedy bit: swear a lot and tear into them for every mistake.
+The player asked for this as a comedy bit and wants it brutal: every single reply must be mean and \
+full of swearing. Never be polite, never encourage, never compliment.
 Player job: {job}
 {notes}Each message has cropped screenshots of the player's UI, in this order: {regions}.
 On hotbars, a darkened icon or one showing a countdown number is on cooldown, a bright icon is ready, \
 and a glowing or animated dashed border marks a proc or the next combo action.
-Reply with JSON {{"callout": "..."}} for the single most important mistake the player is making \
-right now, such as a key ability that is ready but unused, a buff or damage-over-time effect that \
-has fallen off, or a Damage Down or Vulnerability Up debuff on them (they got hit by a mechanic).
-Yell it: the fix in plain words first, then a creative, profane insult about their play, \
-like "<the fix>, you <insult>!". Use at most 12 words, phrased to be spoken aloud.
-Mock only their gameplay: no slurs, nothing about who they are, no threats, nothing about self-harm.
-If nothing important is being missed, or you are unsure, reply {{"callout": ""}}."""
-QUESTION = "What am I doing wrong right now?"
+Reply with JSON {{"callout": "..."}}: one line yelled at the player, at most 12 words, phrased to be spoken aloud.
+If you can see a mistake (a key ability that is ready but unused, a buff or damage-over-time effect \
+that has fallen off, or a Damage Down or Vulnerability Up debuff on them), say the fix in plain words \
+first, then insult them. If you can't see one, roast their play anyway, but don't invent a mistake.
+Tone examples only, never copy them: "Assize is up, you button-mashing fuckwit. Press it!" \
+"No mistakes yet? Pure fucking luck, you walking wipe."
+Mock only their gameplay: no slurs, nothing about who they are, no threats, nothing about self-harm."""
+QUESTION = "Look at my UI and tear into me."
 _NOTHING = {"", "none", "nothing", "n/a"}
+OLLAMA_START_TIMEOUT = 30.0
+_LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 
 def build_system_prompt(settings: CoachConfig) -> str:
@@ -91,7 +100,8 @@ class Coach:
                 {"role": "user", "content": QUESTION, "images": [encode_png(i) for i in images]},
             ],
             format=CALLOUT_SCHEMA,
-            options={"temperature": 0, "num_predict": 48},
+            # Varied roasts; at 0 the same line comes back and repeat_after mutes it.
+            options={"temperature": 0.8, "num_predict": 48},
             keep_alive="30m",
         )
         return parse_callout(response.message.content or "")
@@ -108,10 +118,62 @@ class Coach:
         return tip
 
 
+def find_ollama() -> str | None:
+    found = shutil.which("ollama")
+    if found or sys.platform != "win32":
+        return found
+    # Where Ollama's installer puts it, for when PATH hasn't caught up since installing.
+    exe = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Ollama" / "ollama.exe"
+    return str(exe) if exe.is_file() else None
+
+
+def start_ollama(client: Client, host: str) -> bool:
+    """Start a local Ollama server in the background and wait for it to answer. It keeps running after FFHelper."""
+    address = urlsplit(host)
+    if address.hostname not in _LOCAL_HOSTS:
+        log.error("Coach off: can't reach Ollama at %s. Is Ollama running?", host)
+        return False
+    exe = find_ollama()
+    if exe is None:
+        log.error("Coach off: Ollama isn't installed. Get it from https://ollama.com/download")
+        return False
+
+    log.info("Ollama isn't running; starting it...")
+    if sys.platform == "win32":
+        flags = subprocess.CREATE_NO_WINDOW  # its own hidden console, so no window pops up over the game
+    else:
+        flags = 0
+    server = subprocess.Popen(
+        [exe, "serve"],
+        env={**os.environ, "OLLAMA_HOST": address.netloc},
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        creationflags=flags,
+        start_new_session=sys.platform != "win32",
+    )
+    deadline = time.monotonic() + OLLAMA_START_TIMEOUT
+    while time.monotonic() < deadline:
+        try:
+            client.list()
+            return True
+        except ConnectionError:
+            if server.poll() is not None:
+                break
+            time.sleep(0.5)
+    log.error("Coach off: started Ollama, but it isn't answering at %s.", host)
+    return False
+
+
 def ensure_model(client: Client, settings: CoachConfig) -> bool:
-    """Check Ollama is reachable and download the model on first use. False turns the coach off."""
+    """Check Ollama is reachable (starting it if needed) and download the model on first use. False turns the coach off."""
     try:
-        client.show(settings.model)
+        try:
+            client.show(settings.model)
+        except ConnectionError:
+            if not start_ollama(client, settings.host):
+                return False
+            client.show(settings.model)
         return True
     except ConnectionError:
         log.error("Coach off: can't reach Ollama at %s. Is Ollama running?", settings.host)

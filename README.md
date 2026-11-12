@@ -3,7 +3,7 @@
 A local, screen-reading assistant for FFXIV raids, built in two layers:
 
 - **Radar (fast):** OCRs the boss cast bar about 10 times a second, looks the cast up in your own JSON callout files, and speaks the callout right away ("Stack and mitigate"). Each read takes about 20 ms on the CPU.
-- **Coach (slow):** every few seconds, a local vision model (Qwen2.5-VL running in Ollama on your GPU) looks at your hotbars, buffs and job gauge and screams abuse at you, drill-sergeant style, whenever you mess up ("Use Afflatus Misery, you lily-hoarding dipshit!"). It only mocks your gameplay. Mechanic callouts from the radar stay clean.
+- **Coach (slow):** every few seconds, a local vision model (Qwen2.5-VL running in Ollama on your GPU) looks at your hotbars, buffs and job gauge and screams abuse at you, drill-sergeant style, on every check, and tells you the fix when you mess up ("Use Afflatus Misery, you lily-hoarding dipshit!"). It only mocks your gameplay. Mechanic callouts from the radar stay clean.
 
 Everything runs on your PC. FFHelper only looks at the screen. It never reads game memory or sends inputs. Any third-party tool still breaks the FFXIV User Agreement, so use it at your own risk.
 
@@ -12,7 +12,7 @@ Everything runs on your PC. FFHelper only looks at the screen. It never reads ga
 To install it like a normal app, see [Windows installer](#windows-installer). To run it from source:
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/). uv installs Python for you.
-2. Install [Ollama](https://ollama.com/download). The coach downloads its model (`qwen2.5vl:7b`, about 6 GB) the first time it runs. It fits easily in 16 GB of VRAM alongside the game.
+2. Install [Ollama](https://ollama.com/download). FFHelper starts it if it isn't already running. The coach downloads its model (`qwen2.5vl:7b`, about 6 GB) the first time it runs. It fits easily in 16 GB of VRAM alongside the game.
 3. In this folder, run `uv sync`.
 4. In FFXIV, open System Configuration > Display Settings and set Screen Mode to **Borderless Windowed**. Screen capture can come back black in exclusive full screen.
 

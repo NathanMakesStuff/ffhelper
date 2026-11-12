@@ -128,7 +128,8 @@ class Voice:
         except Exception:
             log.exception("Text-to-speech failed to start; callouts will only be printed.")
             speaker = SilentSpeaker()
-        pending: deque[tuple[str, bool]] = deque()
+        # The coach talks on every check, so only its newest line is worth waiting for.
+        pending: deque[tuple[str, bool]] = deque(maxlen=1)
         while True:
             try:
                 item = self._queue.get(timeout=0.05 if pending else None)

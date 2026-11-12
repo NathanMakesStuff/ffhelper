@@ -1,9 +1,11 @@
 import json
 import logging
+from dataclasses import replace
 from types import SimpleNamespace
 
 import cv2
 import numpy as np
+import pytest
 from ollama import ResponseError
 
 from ffhelper.coach import CALLOUT_SCHEMA, Coach, encode_png, ensure_model, parse_callout
@@ -22,21 +24,31 @@ def reply(text):
 
 
 class FakeClient:
-    def __init__(self, replies=(), show_error=None, pulls=(), pull_error=None):
+    def __init__(self, replies=(), show_error=None, pulls=(), pull_error=None, down_for=0):
         self.replies = list(replies)
         self.show_error = show_error
         self.pulls = pulls
         self.pull_error = pull_error
+        self.down_for = down_for  # how many requests fail as if Ollama weren't running
         self.calls = []
         self.pulled = []
+
+    def _check_up(self):
+        if self.down_for:
+            self.down_for -= 1
+            raise ConnectionError("refused")
 
     def chat(self, **kwargs):
         self.calls.append(kwargs)
         return SimpleNamespace(message=SimpleNamespace(content=self.replies.pop(0)))
 
     def show(self, model):
+        self._check_up()
         if self.show_error:
             raise self.show_error
+
+    def list(self):
+        self._check_up()
 
     def pull(self, model, stream):
         self.pulled.append(model)
@@ -63,6 +75,7 @@ def test_request_carries_job_notes_images_and_schema(voice):
     assert "Life Surge right before" in system["content"]
     assert "hotbars, buffs" in system["content"]
     assert "no slurs" in system["content"]
+    assert '"callout": ""' not in system["content"]  # it must always say something mean
     assert len(user["images"]) == 2
     assert user["images"][0].startswith(b"\x89PNG")
     assert call["format"] == CALLOUT_SCHEMA
@@ -104,8 +117,29 @@ def test_installed_model_is_not_downloaded_again():
 
 
 def test_coach_turns_off_without_ollama_or_model(caplog):
-    assert not ensure_model(FakeClient(show_error=ConnectionError("refused")), SETTINGS)
+    assert not ensure_model(FakeClient(down_for=99), SETTINGS)
+    assert "Ollama isn't installed" in caplog.text
+    assert not ensure_model(FakeClient(down_for=99), replace(SETTINGS, host="http://gaming-pc:11434"))
     assert "Is Ollama running?" in caplog.text
     failed_pull = FakeClient(show_error=ResponseError("not found", 404), pull_error=ResponseError("no space", 500))
     assert not ensure_model(failed_pull, SETTINGS)
     assert "couldn't download" in caplog.text
+
+
+@pytest.mark.parametrize("exits", [False, True])
+def test_installed_ollama_is_started_when_not_running(monkeypatch, caplog, exits):
+    started = []
+
+    class FakeServer:
+        def __init__(self, args, env, **kwargs):
+            started.append((args, env["OLLAMA_HOST"]))
+
+        def poll(self):
+            return 1 if exits else None
+
+    monkeypatch.setattr("ffhelper.coach.find_ollama", lambda: "ollama")
+    monkeypatch.setattr("ffhelper.coach.subprocess.Popen", FakeServer)
+    client = FakeClient(down_for=2)  # the first check and the first wait both find it down
+    assert ensure_model(client, SETTINGS) is not exits
+    assert started == [(["ollama", "serve"], "127.0.0.1:11434")]
+    assert ("isn't answering" in caplog.text) is exits

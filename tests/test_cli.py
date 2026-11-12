@@ -45,5 +45,5 @@ def test_run_fails_when_everything_stops(tmp_path, caplog):
         '[radar]\nenabled = false\n[coach]\nhost = "http://127.0.0.1:9"\n'
     )
     assert main(["run", "-c", str(config)]) == 1
-    assert "can't reach Ollama" in caplog.text
+    assert "Coach off" in caplog.text
     assert "Everything has stopped" in caplog.text
