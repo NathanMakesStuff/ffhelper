@@ -76,6 +76,7 @@ def test_request_carries_job_notes_images_and_schema(voice):
     assert "hotbars, buffs" in system["content"]
     assert "no slurs" in system["content"]
     assert '"callout": ""' not in system["content"]  # it must always say something mean
+    assert "can't see cooldowns" in system["content"]
     assert len(user["images"]) == 2
     assert user["images"][0].startswith(b"\x89PNG")
     assert call["format"] == CALLOUT_SCHEMA
@@ -89,6 +90,16 @@ def test_tips_are_spoken_but_not_repeated_too_soon(voice):
         coach.observe([np.zeros((10, 10, 3), np.uint8)], now)
     assert voice.said == [("Use Life Surge", False), ("Use Life Surge", False)]
     assert voice.shouted == ["Use Life Surge", "Use Life Surge"]
+
+
+def test_measured_cooldowns_reach_the_model(voice):
+    client = FakeClient([reply("Press Assize, you clown"), reply("Still useless")])
+    coach = Coach(client, SETTINGS, voice)
+    coach.observe([np.zeros((10, 10, 3), np.uint8)], 0, ready=["Assize", "Lucid Dreaming"])
+    coach.observe([np.zeros((10, 10, 3), np.uint8)], 5)
+    first, second = (call["messages"][1]["content"] for call in client.calls)
+    assert first.endswith("(measured): Assize, Lucid Dreaming.")
+    assert second.endswith("(measured): nothing.")
 
 
 def test_large_crops_are_downscaled():

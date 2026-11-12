@@ -6,9 +6,10 @@ from ffhelper.config import ConfigError, Region, load_config
 def test_example_config_loads(project_root):
     config = load_config(project_root / "config.example.toml")
     assert config.monitor == 1
-    assert set(config.regions) == {"castbar", "hotbars", "buffs", "job_gauge"}
+    assert set(config.regions) == {"castbar", "buffs", "job_gauge", "Assize", "Presence of Mind", "Lucid Dreaming"}
     assert config.radar.mechanics == project_root / "mechanics"
-    assert config.coach.regions == ("hotbars", "buffs", "job_gauge")
+    assert config.coach.regions == ("buffs", "job_gauge")
+    assert config.coach.watch == ("Assize", "Presence of Mind", "Lucid Dreaming")
     assert config.coach.job == "White Mage"
 
 

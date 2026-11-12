@@ -8,9 +8,12 @@ monitor = 1
 # Screen regions as [x, y, width, height]. Set them by dragging boxes:  ffhelper calibrate
 [regions]
 castbar = [0, 0, 0, 0]
-hotbars = [0, 0, 0, 0]
 buffs = [0, 0, 0, 0]
 job_gauge = [0, 0, 0, 0]
+# Hotbar icons from [coach] watch. Calibrate with them off cooldown.
+Assize = [0, 0, 0, 0]
+"Presence of Mind" = [0, 0, 0, 0]
+"Lucid Dreaming" = [0, 0, 0, 0]
 
 [radar]
 # Fast layer: OCR the boss cast bar and speak the matching callout from your JSON files.
@@ -25,14 +28,17 @@ match_cutoff = 0.75
 rearm_after = 0.5
 
 [coach]
-# Slow layer: a local vision model (via Ollama) checks your hotbars, buffs and gauge.
+# Slow layer: a local vision model (via Ollama) checks your buffs and gauge.
 enabled = true
 host = "http://127.0.0.1:11434"
 # Try "qwen2.5vl:3b" if the game stutters while the coach is thinking.
 model = "qwen2.5vl:7b"
 # Seconds between checks.
 interval = 3.0
-regions = ["hotbars", "buffs", "job_gauge"]
+regions = ["buffs", "job_gauge"]
+# Abilities whose cooldowns are tracked. Each needs a box in [regions]; calibrate saves a picture
+# of it while ready, and the coach only nags about it while the icon matches that picture.
+watch = ["Assize", "Presence of Mind", "Lucid Dreaming"]
 job = "White Mage"
 # Plain-English priorities for your job. The model reads these on every check.
 notes = """

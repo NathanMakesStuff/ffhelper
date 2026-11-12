@@ -40,7 +40,8 @@ class CoachConfig:
     host: str = "http://127.0.0.1:11434"
     model: str = "qwen2.5vl:7b"
     interval: float = 3.0
-    regions: tuple[str, ...] = ("hotbars", "buffs", "job_gauge")
+    regions: tuple[str, ...] = ("buffs", "job_gauge")
+    watch: tuple[str, ...] = ()
     job: str = ""
     notes: str = ""
     repeat_after: float = 15.0
@@ -105,6 +106,6 @@ def load_config(path: Path) -> Config:
         monitor=int(data.get("capture", {}).get("monitor", 1)),
         regions=_regions(data.get("regions", {})),
         radar=replace(radar, mechanics=path.parent / radar.mechanics),
-        coach=replace(coach, regions=tuple(coach.regions)),
+        coach=replace(coach, regions=tuple(coach.regions), watch=tuple(coach.watch)),
         voice=_section(VoiceConfig, data, "voice"),
     )

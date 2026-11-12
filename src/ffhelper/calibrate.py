@@ -14,6 +14,7 @@ import tomlkit
 
 from .capture import monitor_width, screenshot
 from .config import Config, ConfigError
+from .skills import save_reference
 
 HINTS = {
     "castbar": "the boss's cast bar, including the spell name",
@@ -29,6 +30,12 @@ def to_region(box: Sequence[float], scale: float) -> list[int]:
     x0, x1 = sorted((box[0], box[2]))
     y0, y1 = sorted((box[1], box[3]))
     return [round(x0 / scale), round(y0 / scale), round((x1 - x0) / scale), round((y1 - y0) / scale)]
+
+
+def crop(image: np.ndarray, region: Sequence[int], pixel_scale: float) -> np.ndarray:
+    """The screenshot pixels inside an [x, y, w, h] region given in capture coordinates."""
+    x, y, w, h = (round(v * pixel_scale) for v in region)
+    return image[y : y + h, x : x + w]
 
 
 def save_regions(path: Path, regions: dict[str, list[int]]) -> None:
@@ -138,12 +145,15 @@ class RegionPicker:
     def _show_prompt(self) -> None:
         name = self.names[self._index]
         self.label.configure(
-            text=f"{self._index + 1}/{len(self.names)}  Drag a box around {HINTS.get(name, name)}."
+            text=f"{self._index + 1}/{len(self.names)}  Drag a box around "
+            f"{HINTS.get(name, f'the {name} icon on your hotbar, just inside its frame')}."
             "    Enter = keep box    S = skip    Esc = quit without saving"
         )
 
 
 def calibrate(config: Config, delay: float, image_path: Path | None) -> None:
+    if config.coach.watch:
+        print(f"Have {', '.join(config.coach.watch)} off cooldown: their icons are saved as they look when ready.")
     if image_path is not None:
         image = cv2.imread(str(image_path))
         if image is None:
@@ -165,4 +175,7 @@ def calibrate(config: Config, delay: float, image_path: Path | None) -> None:
         save_regions(config.path, picked)
         for name, box in picked.items():
             print(f"  {name} = {box}")
+            if name in config.coach.watch:
+                icon = save_reference(config.path, name, crop(image, box, image.shape[1] / width))
+                print(f"    ready picture: {icon}")
         print(f"Saved to {config.path}")

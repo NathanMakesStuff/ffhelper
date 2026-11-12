@@ -49,7 +49,7 @@ def run(config: Config, radar: bool = True, coach: bool = True) -> int:
         book = MechanicsBook.load(config.radar.mechanics, config.radar.match_cutoff)
         jobs.append(("radar", run_radar, (config, book)))
     if coach and config.coach.enabled:
-        for name in config.coach.regions:
+        for name in (*config.coach.regions, *config.coach.watch):
             config.region(name)
         jobs.append(("coach", run_coach, (config,)))
     if not jobs:

@@ -34,13 +34,14 @@ You are a furious, foul-mouthed drill sergeant coaching a Final Fantasy XIV play
 The player asked for this as a comedy bit and wants it brutal: every single reply must be mean and \
 full of swearing. Never be polite, never encourage, never compliment.
 Player job: {job}
-{notes}Each message has cropped screenshots of the player's UI, in this order: {regions}.
-On hotbars, a darkened icon or one showing a countdown number is on cooldown, a bright icon is ready, \
-and a glowing or animated dashed border marks a proc or the next combo action.
+{notes}Each message has cropped screenshots of the player's UI, in this order: {regions}. \
+It also lists the abilities that are off cooldown and unused, measured straight from the game.
 Reply with JSON {{"callout": "..."}}: one line yelled at the player, at most 12 words, phrased to be spoken aloud.
-If you can see a mistake (a key ability that is ready but unused, a buff or damage-over-time effect \
-that has fallen off, or a Damage Down or Vulnerability Up debuff on them), say the fix in plain words \
-first, then insult them. If you can't see one, roast their play anyway, but don't invent a mistake.
+If they're making a mistake, say the fix in plain words first, then insult them. Mistakes: an ability \
+on that list, a buff or damage-over-time effect that has fallen off, a Damage Down or Vulnerability Up \
+debuff on them, or ignoring the job notes about their gauge or buffs. You can't see cooldowns: never \
+tell them to use an ability that has a cooldown unless it's on that list.
+If there's no mistake, roast their play anyway, but don't invent one.
 Tone examples only, never copy them: "Assize is up, you button-mashing fuckwit. Press it!" \
 "No mistakes yet? Pure fucking luck, you walking wipe."
 Mock only their gameplay: no slurs, nothing about who they are, no threats, nothing about self-harm."""
@@ -92,12 +93,13 @@ class Coach:
         self._last_tip = ""
         self._last_time = float("-inf")
 
-    def ask(self, images: Sequence[np.ndarray]) -> str:
+    def ask(self, images: Sequence[np.ndarray], ready: Sequence[str] = ()) -> str:
+        facts = f"Off cooldown and unused (measured): {', '.join(ready) or 'nothing'}."
         response = self.client.chat(
             model=self.settings.model,
             messages=[
                 {"role": "system", "content": self.system_prompt},
-                {"role": "user", "content": QUESTION, "images": [encode_png(i) for i in images]},
+                {"role": "user", "content": f"{QUESTION}\n{facts}", "images": [encode_png(i) for i in images]},
             ],
             format=CALLOUT_SCHEMA,
             # Varied roasts; at 0 the same line comes back and repeat_after mutes it.
@@ -106,8 +108,8 @@ class Coach:
         )
         return parse_callout(response.message.content or "")
 
-    def observe(self, images: Sequence[np.ndarray], now: float) -> str | None:
-        tip = self.ask(images)
+    def observe(self, images: Sequence[np.ndarray], now: float, ready: Sequence[str] = ()) -> str | None:
+        tip = self.ask(images, ready)
         if not tip:
             return None
         if tip.lower() == self._last_tip.lower() and now - self._last_time < self.settings.repeat_after:
@@ -202,22 +204,25 @@ def ensure_model(client: Client, settings: CoachConfig) -> bool:
 
 def run_coach(config: Config, voice: Voice, stop: threading.Event) -> None:
     from .capture import Grabber
+    from .skills import SkillWatch
 
     settings = config.coach
     client = Client(host=settings.host, timeout=60)
     if not ensure_model(client, settings):
         return
-    grabber = Grabber(config, settings.regions)
+    skills = SkillWatch.load(config.path, settings.watch)
+    grabber = Grabber(config, (*settings.regions, *skills.references))
     coach = Coach(client, settings, voice)
     log.info(
         "Coach ready: %s checks %s every %g s",
-        settings.model, ", ".join(settings.regions), settings.interval,
+        settings.model, ", ".join((*settings.regions, *skills.references)), settings.interval,
     )
     try:
         while not stop.wait(settings.interval):
             started = time.monotonic()
             try:
-                coach.observe([grabber.grab(name) for name in settings.regions], started)
+                ready = skills.update({name: grabber.grab(name) for name in skills.references}, started)
+                coach.observe([grabber.grab(name) for name in settings.regions], started, ready)
             except ConnectionError:
                 log.warning("[coach] lost connection to Ollama; retrying in 10 s")
                 stop.wait(10)

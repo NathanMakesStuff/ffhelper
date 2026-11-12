@@ -3,7 +3,7 @@
 A local, screen-reading assistant for FFXIV raids, built in two layers:
 
 - **Radar (fast):** OCRs the boss cast bar about 10 times a second, looks the cast up in your own JSON callout files, and speaks the callout right away ("Stack and mitigate"). Each read takes about 20 ms on the CPU.
-- **Coach (slow):** every few seconds, a local vision model (Qwen2.5-VL running in Ollama on your GPU) looks at your hotbars, buffs and job gauge and screams abuse at you, drill-sergeant style, on every check, and tells you the fix when you mess up ("Use Afflatus Misery, you lily-hoarding dipshit!"). It only mocks your gameplay. Mechanic callouts from the radar stay clean.
+- **Coach (slow):** every few seconds, a local vision model (Qwen2.5-VL running in Ollama on your GPU) looks at your buffs and job gauge, checks which of your key cooldowns are sitting unused, and screams abuse at you, drill-sergeant style, on every check, and tells you the fix when you mess up ("Use Afflatus Misery, you lily-hoarding dipshit!"). It only mocks your gameplay. Mechanic callouts from the radar stay clean.
 
 Everything runs on your PC. FFHelper only looks at the screen. It never reads game memory or sends inputs. Any third-party tool still breaks the FFXIV User Agreement, so use it at your own risk.
 
@@ -21,8 +21,10 @@ To install it like a normal app, see [Windows installer](#windows-installer). To
 ```
 uv run ffhelper calibrate     # you get 3 s to switch to the game, then drag a box for each region
 uv run ffhelper run           # Ctrl+C to stop
-uv run ffhelper run --debug   # also logs every OCR read and its timing
+uv run ffhelper run --debug   # also logs every OCR read, its timing, and how each tracked icon compares
 ```
+
+Calibrate out of combat with the abilities under `[coach] watch` (Assize, Presence of Mind and Lucid Dreaming) off cooldown, and draw each of their boxes just inside the icon's frame. FFHelper saves a picture of each icon while it's ready, and only counts the ability as ready while the live icon matches that picture. The vision model never judges cooldowns itself. If you move your hotbars or change the HUD scale, calibrate again.
 
 Settings are in `config.toml`, which is created from `config.example.toml` the first time you run FFHelper. That's where you set your job, coach notes, model and timings.
 
