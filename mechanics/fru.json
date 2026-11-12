@@ -1,0 +1,161 @@
+{
+  "fight": "Futures Rewritten (Ultimate), White Mage. Only casts by enemies you can target are listed, because the radar reads your target's cast bar; the rest are in the notes.",
+  "mechanics": {
+    "Cyclonic Break": {
+      "say": "Proteans, then pairs if fire, spread if lightning.",
+      "note": "P1. The fire and lightning versions share this name."
+    },
+    "Powder Mark Trail": {
+      "say": "Tank buster, stay clear. Shield the tank.",
+      "note": "P1. Splashes anyone near the tank and leaves Burn Mark, so the tanks swap. Divine Benison and Aquaveil on the tank."
+    },
+    "Utopian Sky": {
+      "say": "Find the safe lines. Fire stacks, lightning spreads.",
+      "note": "P1. Fatebreaker leaves and three clones mark Blasting Zone lines; the two unmarked directions are safe. Fire: light-party stacks. Lightning: spread. The clones then repeat Cyclonic Break and Burnt Strike, which can't be read."
+    },
+    "Burnished Glory": {
+      "say": "Raidwide and bleed. Mitigate, then Medica 3.",
+      "note": "P1. Regens and Asylum cover the bleed. The P1 enrage has the same name."
+    },
+    "Fall of Faith": {
+      "say": "Four tethers. Fire stacks, lightning spreads.",
+      "note": "P1. Tethers go out one at a time and lift their target. Fire: stack with that player's group. Lightning: spread for the cones. Line up in your strat's order."
+    },
+    "Burnt Strike": {
+      "say": "Line cleave, then knockback if fire, out if lightning.",
+      "note": "P1. At the end of P1, towers follow: everyone but the tanks soaks one, and with the fire version you get knocked back into it."
+    },
+    "Quadruple Slap": {
+      "say": "Tank buster. Esuna the tank after the first hit.",
+      "note": "P2. Two hits on the same tank. The first can leave a cleansable debuff (a Bard's Warden's Paean prevents it); cleanse it before the second. Divine Benison and Aquaveil help too."
+    },
+    "Diamond Dust": {
+      "say": "Big raidwide. Then axe kick out, scythe kick in.",
+      "note": "P2. The boss leaves and Oracle's Reflection casts the kick, so it can't be read. Then protean baits or Frigid Stone puddles, the Heavenly Strike knockback, and Sinbound Holy: healers are the stack targets, so keep moving with your group. Shining Armor: look away. Then front and back sword cleaves."
+    },
+    "Hallowed Ray": {
+      "say": "Line stack.",
+      "note": "P2. A shared laser; everyone stands in the line."
+    },
+    "Mirror, Mirror": {
+      "say": "Mirrors. Find the blue one.",
+      "note": "P2. Scythe Kick and protean baits at the boss and the blue mirror, then again from the red mirrors. Banish III after: partner stacks or spread (no cast bar)."
+    },
+    "Scythe Kick": {
+      "say": "Get in, bait the cleave.",
+      "note": "P2 Mirror, Mirror. The Diamond Dust kicks come from the Reflection and can't be read."
+    },
+    "Light Rampant": {
+      "say": "Raidwide. Chains and puddles, then towers.",
+      "note": "P2. Tethered players spread into a ring without breaking the chains; two marked players drop Luminous Hammer puddles. With exactly 2 Lightsteep stacks take the middle tower, otherwise avoid it, and never take a fifth stack. Powerful Light orbs are stacks. Banish III partners or spread at the end."
+    },
+    "The House of Light": {
+      "say": "Proteans, spread out.",
+      "note": "End of P2, and P4. One hit each."
+    },
+    "Absolute Zero": {
+      "say": "Big raidwide. Mitigate and heal up.",
+      "note": "End of P2: a knockback (Swelling Frost) and the intermission adds follow. Also part of the P4 enrage, with Memory's End."
+    },
+    "Endless Ice Age": {
+      "say": "Kill crystals, then Ice Veil. Raidwide after.",
+      "note": "Intermission. Ice Veil's enrage cast, interrupted once Ice Veil is under 50% HP. Crystals of Light drop puddles and Crystals of Darkness cleave. When Ice Veil dies, Junction hits everyone (can't be read), so heal up before Hell's Judgment."
+    },
+    "Hell's Judgment": {
+      "say": "HP to 1. Heal everyone to full.",
+      "note": "P3. Ultimate Relativity's raidwide lands about 14 seconds later: Medica III, Afflatus Rapture, Cure III, Assize, Asylum, Plenary Indulgence."
+    },
+    "Ultimate Relativity": {
+      "say": "Big raidwide. Then check your fire or ice timer.",
+      "note": "P3. Fire debuffs are short, medium or long; one player gets ice. Follow your strat's spots: drop Rewind, bait stoplights, and look away from Shadoweye when Return pulls you back."
+    },
+    "Shell Crusher": {
+      "say": "Stack.",
+      "note": "P3, after Ultimate Relativity. Shockwave Pulsar follows."
+    },
+    "Shockwave Pulsar": {
+      "say": "Big raidwide. Mitigate.",
+      "note": "P3, twice."
+    },
+    "Black Halo": {
+      "say": "Shared tank cleave. Stay away, shield the tanks.",
+      "note": "P3. Both tanks share it; everyone else avoids it."
+    },
+    "Spell-in-Waiting: Refrain": {
+      "say": "Apocalypse next. Note your stack timer.",
+      "note": "P3. Six players get Dark Water stacks (short, medium, long); two get none."
+    },
+    "Apocalypse": {
+      "say": "Stacks, then spread. Follow the light rotation.",
+      "note": "P3. Spirit Taker spread, Dark Eruption spreads in the safe spots, second stacks, Darkest Dance, third stacks, then Shockwave Pulsar."
+    },
+    "Spirit Taker": {
+      "say": "Spread.",
+      "note": "P3 Apocalypse and P4 Darklit Dragonsong. The one in Crystallize Time can't be read: cleanse first if you're still blue."
+    },
+    "Darkest Dance": {
+      "say": "Tank bait, then knockback into stacks.",
+      "note": "P3 Apocalypse. A tank baits the jump; everyone else is knocked back, then stacks."
+    },
+    "Memory's End": {
+      "say": "Big raidwide. Mitigate and heal.",
+      "note": "End of P3. Also the P4 enrage, with Absolute Zero."
+    },
+    "Materialization": {
+      "say": "Stack, then dodge Akh Rhai. Raidwide after.",
+      "note": "P4. Drachen Armor, then Akh Rhai puddles: keep moving. The Edge of Oblivion raidwide comes from an actor you can't target."
+    },
+    "Akh Rhai": {
+      "say": "Move away, keep moving.",
+      "note": "P4."
+    },
+    "Darklit Dragonsong": {
+      "say": "Big raidwide. Tethers take towers, others bait cones.",
+      "note": "P4. Usual strat: tethered players soak the tower and the rest bait the cleaves. Then Spirit Taker spread, Hallowed Wings and stacks, Somber Dance, and Edge of Oblivion (raidwide)."
+    },
+    "Hallowed Wings": {
+      "say": "Half-room cleave. Safe side, then stacks.",
+      "note": "P4 Darklit Dragonsong. The ones at the end of Crystallize Time can't be read."
+    },
+    "Somber Dance": {
+      "say": "Tank busters, far then close. Shield the tanks.",
+      "note": "P4. The first hit takes the farthest player, the second the closest; non-tanks stay in between."
+    },
+    "Akh Morn": {
+      "say": "Group stacks, several hits. Heal through.",
+      "note": "P4 (five hits) and P5. A good spot for Liturgy of the Bell, Temperance or Medica III if your plan has them free."
+    },
+    "Morn Afah": {
+      "say": "Full party stack.",
+      "note": "P4, after Akh Morn."
+    },
+    "Crystallize Time": {
+      "say": "Big raidwide. Then check red or blue.",
+      "note": "P4. Red players pop dragon heads; blue players cleanse in the puddles after the stacks. Drop Rewind where your strat says, then Quietus (raidwide), Spirit Taker spread and Hallowed Wings."
+    },
+    "Fulgent Blade": {
+      "say": "Raidwide, then rotating lines. Move into the gaps.",
+      "note": "P5. The Path of Light and Darkness lines sweep clockwise or counterclockwise. Akh Morn stacks follow."
+    },
+    "Paradise Regained": {
+      "say": "Towers and wing cleaves. Party in or out with the tether.",
+      "note": "P5. Three towers in a row while Wings Dark and Light cleaves one side, then the other, and a tether hits close or far. In most strats the tanks handle the towers, cleaves and tethers; keep them shielded."
+    },
+    "Wings Dark and Light": {
+      "say": "Wing cleaves. Shield the tanks.",
+      "note": "P5, during Paradise Regained."
+    },
+    "Polarizing Strikes": {
+      "say": "Line stacks. Swap when you get hit.",
+      "note": "P5. Four sets of line stacks; anyone hit picks up a debuff and swaps out. A follow-up hits after each set."
+    },
+    "Pandora's Box": {
+      "say": "Tank limit break. Then heal everyone up.",
+      "note": "P5."
+    },
+    "Paradise Lost": {
+      "say": "Enrage. Full damage.",
+      "note": "P5 enrage."
+    }
+  }
+}

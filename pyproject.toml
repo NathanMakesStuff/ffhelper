@@ -1,0 +1,34 @@
+[project]
+name = "ffhelper"
+dynamic = ["version"]
+description = "Local, screen-reading FFXIV raid assistant: boss cast-bar callouts plus a local vision-model rotation coach."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mss>=10.2",
+    "numpy>=1.26",
+    "opencv-python-headless>=4.10",
+    "rapidocr>=3.10,<4",
+    "onnxruntime>=1.20",
+    "ollama>=0.6",
+    "tomlkit>=0.13",
+    "pywin32>=306; sys_platform == 'win32'",
+]
+
+[project.scripts]
+ffhelper = "ffhelper.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+# Windows installer: packaging/build.ps1. 6.19+ collects uv-installed numpy DLLs correctly.
+build = ["pyinstaller>=6.19"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/ffhelper/__init__.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

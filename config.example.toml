@@ -1,0 +1,49 @@
+# FFHelper settings. `ffhelper run` copies this file to config.toml the first time;
+# edit config.toml, not this file.
+
+[capture]
+# Monitor the game is on: 1, 2, ... (calibrate shows the screenshot, so you can check).
+monitor = 1
+
+# Screen regions as [x, y, width, height]. Set them by dragging boxes:  ffhelper calibrate
+[regions]
+castbar = [0, 0, 0, 0]
+hotbars = [0, 0, 0, 0]
+buffs = [0, 0, 0, 0]
+job_gauge = [0, 0, 0, 0]
+
+[radar]
+# Fast layer: OCR the boss cast bar and speak the matching callout from your JSON files.
+enabled = true
+region = "castbar"
+# A JSON file, or a folder of them (one per fight).
+mechanics = "mechanics"
+reads_per_second = 10
+# How closely the OCR text must match a cast name (0-1). Raise it if you hear wrong callouts.
+match_cutoff = 0.75
+# Seconds the cast bar must be gone before the same cast can be called again.
+rearm_after = 0.5
+
+[coach]
+# Slow layer: a local vision model (via Ollama) checks your hotbars, buffs and gauge.
+enabled = true
+host = "http://127.0.0.1:11434"
+# Try "qwen2.5vl:3b" if the game stutters while the coach is thinking.
+model = "qwen2.5vl:7b"
+# Seconds between checks.
+interval = 3.0
+regions = ["hotbars", "buffs", "job_gauge"]
+job = "White Mage"
+# Plain-English priorities for your job. The model reads these on every check.
+notes = """
+Glare III is the filler. When the Sacred Sight buff is up, spend it on Glare IV.
+Use Presence of Mind, Assize and Lucid Dreaming when they're off cooldown.
+Don't sit at three Lilies on the gauge: spend one on Afflatus Solace or Afflatus Rapture.
+When the Blood Lily is full, use Afflatus Misery.
+"""
+# Don't repeat the same tip within this many seconds.
+repeat_after = 15.0
+
+[voice]
+# Speech speed from -10 (slow) to 10 (fast).
+rate = 2
